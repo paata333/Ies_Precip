@@ -9,10 +9,25 @@ from src import Config
 
 
 
+# @click.command("init_db")
+# @with_appcontext
+# def init_db():
+#     click.echo("Creating Database")
+#     db.drop_all()
+#     db.create_all()
+#     click.echo("Database Created")
 @click.command("init_db")
 @with_appcontext
 def init_db():
-    click.echo("Creating Database")
+    click.echo("\n⚠️  გაფრთხილება: ეს წაშკის თქვენ მონაცემთა ბაზას და შექმინის თავიდან!")
+    click.echo("━" * 55)
+    confirmed = click.confirm("დარწმუნებული ხართ რომ გსურთ გააგრძელოთ ?", default=False)
+    
+    if not confirmed:
+        click.echo("❌ Aborted. Database was not changed.")
+        return
+
+    click.echo("Creating Database...")
     db.drop_all()
     db.create_all()
     click.echo("Database Created")
