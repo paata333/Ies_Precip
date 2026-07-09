@@ -1,9 +1,24 @@
+function showLoginError(message) {
+    showAlert('alertPlaceholder', 'danger', message || 'ავტორიზაცია ვერ მოხერხდა.');
+}
+
+async function readLoginResponse(response) {
+    const contentType = response.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+        return response.json();
+    }
+
+    return {};
+}
+
 function login(event) {
     event.preventDefault();  // Prevent the form from submitting
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe').checked;
+    const submitButton = event.target.querySelector('button[type="submit"]');
 
     // Create a JSON object with the form values
     const formData = {
@@ -11,6 +26,7 @@ function login(event) {
         password: password
     };
 
+    submitButton.disabled = true;
 
     fetch('/api/login', {
         method: 'POST',
@@ -19,7 +35,15 @@ function login(event) {
         },
         body: JSON.stringify(formData)
     })
-    .then(response => response.json())
+    .then(async response => {
+        const data = await readLoginResponse(response);
+
+        if (!response.ok) {
+            throw new Error(data.error || data.message || 'სერვერთან დაკავშირება ვერ მოხერხდა.');
+        }
+
+        return data;
+    })
     .then(data => {
         if (data.access_token) {
             // JWT ტოკენების შენახვა localStorage-ში
@@ -30,11 +54,15 @@ function login(event) {
             // Redirect to /projects page
             window.location.href = '/filter';
         } else {
-            showAlert('alertPlaceholder', 'danger', data.error || ' გაუმართავი ავტორიზაცია.');
+            showLoginError(data.error || 'გაუმართავი ავტორიზაცია.');
         }
     })
     .catch(error => {
         console.error('Error:', error);
+        showLoginError(error.message);
+    })
+    .finally(() => {
+        submitButton.disabled = false;
     });
 }
 

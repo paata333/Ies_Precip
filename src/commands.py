@@ -1,6 +1,7 @@
 from flask.cli import with_appcontext
 import click
 import csv
+from datetime import datetime
 from os import path
 
 from src.extensions import db
@@ -91,7 +92,7 @@ def populate_db():
                 station_id=row['station_id'],
                 precip_rate=row['precip_rate'],
                 precip_accum=row['precip_accum'],
-                precip_time=row['precip_time']
+                precip_time=datetime.strptime(row['precip_time'], '%Y-%m-%d %H:%M:%S')
             )
             new_precip.create()
 
@@ -105,7 +106,7 @@ def populate_db():
                 station_id=row['station_id'],
                 prev_pa=row['prev_pa'],
                 last_pa_long=row['last_pa_long'],
-                zero_start_time=row['zero_start_time']
+                zero_start_time=datetime.strptime(row['zero_start_time'], '%Y-%m-%d %H:%M:%S')
             )
             new_prev_precip.create()
     

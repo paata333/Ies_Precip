@@ -3,12 +3,14 @@ import os
 from datetime import timedelta
 from os import path, sep, pardir
 
-# Load environment variables from a custom path
-load_dotenv(dotenv_path='./.env')  # Adjust the path as necessary
+BASE_DIR = path.abspath(path.dirname(__file__) + sep + pardir)
+
+# Load .env from the project root, no matter where Flask is started from.
+load_dotenv(dotenv_path=path.join(BASE_DIR, '.env'))
 
 class Config(object):
-    SECRET_KEY = os.getenv('MY_SECRET_KEY', 'default_secret_key')
-    BASE_DIR = path.abspath(path.dirname(__file__) + sep + pardir)
+    SECRET_KEY = os.getenv('MY_SECRET_KEY') or os.getenv('SECRET_KEY', 'default_secret_key')
+    BASE_DIR = BASE_DIR
     TEMPLATES_FOLDERS = 'src/templates'
     # Directory to export CSV files
     EXPORT_DIR = os.path.join(BASE_DIR, 'export')
@@ -18,14 +20,14 @@ class Config(object):
     RESTX_MASK_SWAGGER = False
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + path.join(BASE_DIR, 'db.sqlite')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + path.join(BASE_DIR, 'db.sqlite')
     
     MYSQL_HOST = os.getenv('MYSQL_HOST', 'default_host')
     MYSQL_DATABASE = os.getenv('MYSQL_DATABASE', 'default_database')
     MYSQL_USER = os.getenv('MYSQL_USER', 'default_user')
     MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', 'default_password')
     # MySQL connection URI
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}'
+    # SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}'
 
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_jwt_secret_key')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
